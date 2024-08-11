@@ -1,0 +1,2 @@
+psycopg2-binary == 2.9.9
+python-telegram-bot == 21.3

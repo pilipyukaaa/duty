@@ -1,0 +1,23 @@
+{{- if .Values.duty.extraConfigs }}
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: {{ template "duty_bot.fullname" . }}-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "duty_bot.name" . }}
+    release: {{ .Release.Name }}
+    {{- if .Values.duty.podLabels }}
+      {{- toYaml .Values.duty.podLabels | nindent 8 }}
+    {{- end }}
+  annotations:
+  {{- if .Values.duty.podAnnotations }}
+    {{- toYaml .Values.duty.podAnnotations | nindent 8 }}
+  {{- end }}
+data:
+  {{- range $path, $config := .Values.duty.extraConfigs }}
+  {{ $path }}: |
+    {{- tpl $config $ | nindent 4 -}}
+  {{- end -}}
+{{- end }}

@@ -1,0 +1,25 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "duty_bot.fullname" . }}-postgres-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "duty_bot.name" . }}
+    chart: {{ template "duty_bot.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.postgres.service.type }}
+  ports:
+    - port: {{ .Values.postgres.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if and (or (eq .Values.postgres.service.type "NodePort") (eq .Values.postgres.service.type "LoadBalancer")) (not (empty .Values.postgres.service.nodePort.http)) }}
+      nodePort: {{ .Values.postgres.service.nodePort.http }}
+      {{- end }}
+  selector:
+    app: {{ template "duty_bot.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}

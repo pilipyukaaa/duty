@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: "0.0.1"
+description: Duty bot for telegram
+name: duty-bot
+keywords:
+  - duty-bot
+sources:
+  - https://github.com/pilipyukaaa/duty
+version: 0.0.1

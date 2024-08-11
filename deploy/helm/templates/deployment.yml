@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "duty_bot.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "duty_bot.name" . }}
+    chart: {{ template "duty_bot.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  {{- if .Values.duty.deploymentAnnotations }}
+  annotations: {{- toYaml .Values.duty.deploymentAnnotations | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "duty_bot.name" . }}
+      release: {{ .Release.Name }}
+  {{- if .Values.duty.strategy }}
+  strategy: {{- toYaml .Values.duty.strategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.duty.podAnnotations }}
+          {{- toYaml .Values.duty.podAnnotations | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ template "duty_bot.name" . }}
+        release: {{ .Release.Name }}
+        {{- if .Values.duty.podLabels }}
+          {{- toYaml .Values.duty.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.duty.runAsUser }}
+        {{- if .Values.duty.podSecurityContext }}
+          {{- toYaml .Values.duty.podSecurityContext | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.duty.image.repository }}:{{ .Values.duty.image.tag }}"
+          imagePullPolicy: {{ .Values.duty.image.pullPolicy }}
+          env:
+            - name: MIGRATION
+              value: {{ .Values.duty.migration | quote }}
+            {{- if .Values.postgres.enabled }}
+            - name: POSTGRESQL_HOST
+              value: "{{ template "duty_bot.fullname" . }}-postgres-service"
+            - name: POSTGRESQL_PORT
+              value: {{ .Values.postgres.service.port | quote }}
+            - name: POSTGRESQL_USER
+              value: {{ .Values.postgres.username | default "postgres" | quote }}
+            - name: POSTGRESQL_PASSWORD
+              value: {{ .Values.postgres.password | default "postgres" | quote }}
+            - name: POSTGRESQL_DB_NAME
+              value: {{ .Values.postgres.database | default "postgres" | quote }}
+            {{- else }}
+            {{- range $key, $value := .Values.duty.database }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+            {{- range $key, $value := .Values.duty.extraEnv }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+          envFrom:
+            {{- range .Values.duty.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl . $ | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- with .Values.duty.extraVolumeMounts }}
+              {{- tpl (toYaml .) $ | nindent 12 -}}
+            {{- end }}
+          resources:
+            {{- if .Values.duty.resources }}
+              {{- toYaml .Values.duty.resources | nindent 12 }}
+            {{- end }}
+      {{- with .Values.duty.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.duty.affinity }}
+      affinity:
+        {{- with .Values.duty.affinity }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.duty.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.duty.image.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.duty.image.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- with .Values.duty.extraVolumes }}
+          {{- tpl (toYaml .) $ | nindent 8 -}}
+        {{- end }}

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "duty_bot"
+authors = [
+    {name = "Andrew Pilipyuk", email = "pilipyukaa@gmail.com"},
+]
+description = "My duty bot on python"
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["telegram", "duty", "bot", "python"]
+version = "1.0.0"
+
+dependencies = [
+    "psycopg2-binary==2.9.9",
+    "python-telegram-bot==21.3",
+]

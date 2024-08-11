@@ -1,0 +1,134 @@
+duty:
+  migration: true
+  image:
+    repository: "duty_bot"
+    tag: "0.0.1"
+    pullPolicy: Never
+    imagePullSecrets: []
+      # - name: "docker-registry secretname"
+  runAsUser: 0
+  database:
+  # Need to fill only when postgres.enabled is false
+    POSTGRESQL_HOST: ""
+    POSTGRESQL_PORT: 
+    POSTGRESQL_USER: ""
+    POSTGRESQL_PASSWORD: ""
+    POSTGRESQL_DB_NAME: ""
+  extraEnv:
+    TELEGRAM_TOKEN: ""
+    DUTY_BOT_NAME: ""
+  extraConfigs:
+    duty_configmap.py: |
+      """Hour when bot should start answer"""
+      work_start_hour = 00
+
+      """Hour when bot should stop answer"""
+      work_stop_hour = 23
+
+      """Number of active days on week(5 days from monday to friday for example)"""
+      active_days = 7
+
+      """Team members on format (id, name and secind name, email, mobile number, telegram username)"""
+      team = [
+        ("1", "Alice Show", "ashow@example.com", "+33333333333", "@usernamea"),
+        ("2", "Mike Cooper", "mcooper@example.com", "+44444444444", "@usernameb"),
+              ]
+      
+      """Calendar data on format (duty_id, date)"""
+      duty_calendar = [
+                      (1, '2024-07-07'),
+                      (2, '2024-07-08'),
+                      (1, '2024-07-09'),
+                      (2, '2024-07-10'),
+                      (1, '2024-07-11'),
+                      (2, '2024-07-12'),
+                      (1, '2024-07-15'),
+                      (2, '2024-07-16'),
+                      (1, '2024-07-17'),
+                      (2, '2024-07-18'),
+                      (1, '2024-07-19'),
+                      (2, '2024-07-22'),
+                      (1, '2024-07-23'),
+                      (2, '2024-07-24'),
+                      (1, '2024-07-25'),
+                      (2, '2024-07-26'),
+                      (2, '2024-07-29'),
+                      (2, '2024-07-30'),
+                      (2, '2024-07-31'),
+                      (2, '2024-08-01'),
+                      (2, '2024-08-02'),
+                      (2, '2024-08-03'),
+                      (2, '2024-08-04'),
+                      (2, '2024-08-05'),
+                      (2, '2024-08-06'),
+                      (2, '2024-08-07'),
+                      (2, '2024-08-08'),
+                      (2, '2024-08-09'),
+                      (2, '2024-08-10'),
+                      (2, '2024-08-11'),
+                      (1, '2024-08-12')
+                      ]
+  envFromSecret: []
+  envFromSecrets: []
+  secretsAnnotations: []
+  extraVolumeMounts:
+    - mountPath: /app/templates/duty_configmap.py
+      name: duty-configmap
+      subPath: duty_configmap.py
+  extraVolumes:
+  - name: duty-configmap
+    configMap:
+      name: duty-bot-configmap
+      items:
+      - key: duty_configmap.py
+        path: duty_configmap.py
+
+  command: []
+    # - "/bin/sh"
+    # - "-c"
+    # - ""
+  # -- If true, forces deployment to reload on each upgrade
+  forceReload: false
+  # -- Annotations to be added to Duty bot deployment
+  deploymentAnnotations: {}
+  # -- Affinity to be added to Duty bot deployment
+  affinity: {}
+  # -- Annotations to be added to Duty bot pods
+  podAnnotations: []
+  # -- Labels to be added to Duty bot pods
+  podLabels: {}
+  # -- Resource settings for the Duty bot pods - these settings overwrite might existing values from the global resources object defined above.
+  resources: {}
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+  podSecurityContext: {}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  nodeSelector: {}
+  tolerations: []
+
+postgres:
+  enabled: true
+  replicaCount: 1
+  database: duty_bot
+  username: duty_bot
+  password: test
+  service:
+    type: ClusterIP
+    port: 5432
+    annotations: {}
+      # cloud.google.com/load-balancer-type: "Internal"
+    loadBalancerIP: ~
+    nodePort:
+      # -- (int)
+      http: nil
+
+nameOverride: {}
+fullnameOverride: {}
