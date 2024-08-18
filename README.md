@@ -4,7 +4,8 @@ This is the duty bot on python
 He can reply on your message and tag today's duty engineer with tag him in answer
 ![demo_image](media/answer.png)
 
-![demo_video](media/demo.mov)
+
+[media/demo.mov](https://github.com/user-attachments/assets/c2f9d71c-cc15-4986-97fc-85ca58934bc2)
 
 ---
 # Installation guide
