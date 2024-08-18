@@ -19,11 +19,11 @@ He can reply on your message and tag today's duty engineer with tag him in answe
     https://github.com/pilipyukaaa/duty/blob/main/duty_bot/templates/messages.py
     ```python
     def reply_message():
-    message = generate_reply_message(f"""
-    Today's duty officer is {get_duty()}
-    Do you have any questions? Let us know! 🤌
-    """)
-    return message
+        message = generate_reply_message(f"""
+            Today's duty officer is {get_duty()}
+            Do you have any questions? Let us know! 🤌
+        """)
+        return message
 
 
     def reply_message_weekend():
